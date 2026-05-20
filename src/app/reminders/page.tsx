@@ -16,7 +16,7 @@ import {
 import Link from 'next/link';
 
 export default function RemindersPage() {
-  const { reminders, addReminder, toggleReminder, deleteReminder } = useApp();
+  const { reminders, addReminder, toggleReminder, deleteReminder, t } = useApp();
   const [title, setTitle] = useState('');
   const [crop, setCrop] = useState('');
   const [date, setDate] = useState('');
@@ -60,11 +60,11 @@ export default function RemindersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white/70 backdrop-blur-md border border-emerald-800/10 p-5 rounded-2xl shadow-sm">
         <div className="flex items-center gap-3">
-          <Link href="/" className="p-2 bg-white border border-emerald-800/10 hover:bg-emerald-50 rounded-xl transition-colors shadow-sm cursor-pointer">
+          <Link href="/dashboard" className="p-2 bg-white border border-emerald-800/10 hover:bg-emerald-50 rounded-xl transition-colors shadow-sm cursor-pointer">
             <ArrowLeft className="h-4.5 w-4.5 text-emerald-900" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-emerald-950">रिमाइंडर्स (Reminders)</h1>
+            <h1 className="text-xl font-bold text-emerald-950">ರಿಮಾಂಡರ್ಸ್ (Reminders)</h1>
             <p className="text-xs text-emerald-800/60 font-medium">Set alerts to ensure crop feeding, watering, and sprays happen on schedule.</p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function RemindersPage() {
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer self-start sm:self-center"
         >
-          <PlusCircle className="h-4 w-4" />
+          <PlusCircle className="h-4.5 w-4.5" />
           <span>नया रिमाइंडर (Add Alert)</span>
         </button>
       </div>
@@ -215,7 +215,7 @@ export default function RemindersPage() {
                     </span>
                     <button 
                       onClick={() => deleteReminder(rem.id)} 
-                      className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors text-stone-400 cursor-pointer"
+                      className="p-1.5 hover:bg-red-50 hover:text-red-650 rounded-lg transition-colors text-stone-400 cursor-pointer"
                       title="Delete alert"
                     >
                       <Trash2 className="h-4.5 w-4.5" />
@@ -242,7 +242,7 @@ export default function RemindersPage() {
                   <div className="flex items-start gap-3.5 min-w-0">
                     <button 
                       onClick={() => toggleReminder(rem.id)} 
-                      className="mt-0.5 text-emerald-600 hover:text-emerald-700 transition-colors shrink-0 cursor-pointer"
+                      className="mt-0.5 text-emerald-600 hover:text-emerald-750 transition-colors shrink-0 cursor-pointer"
                     >
                       <CheckCircle className="h-5.5 w-5.5 text-emerald-700" />
                     </button>
@@ -259,7 +259,7 @@ export default function RemindersPage() {
                   <div className="flex items-center gap-3">
                     <button 
                       onClick={() => deleteReminder(rem.id)} 
-                      className="p-1.5 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors text-stone-400 cursor-pointer"
+                      className="p-1.5 hover:bg-red-50 hover:text-red-655 rounded-lg transition-colors text-stone-400 cursor-pointer"
                       title="Delete alert"
                     >
                       <Trash2 className="h-4.5 w-4.5" />

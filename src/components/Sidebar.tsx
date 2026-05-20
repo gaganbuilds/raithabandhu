@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
+import { translations } from '../data/translations';
 import { 
   LayoutDashboard, 
   Mic, 
@@ -21,25 +22,25 @@ import {
 } from 'lucide-react';
 
 interface NavItem {
-  name: string;
+  translationKey: keyof typeof translations['en-IN'];
   nameHindi: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', nameHindi: 'डैशबोर्ड', path: '/', icon: LayoutDashboard },
-  { name: 'Voice Assistant', nameHindi: 'आवाज़ सहायक', path: '/voice', icon: Mic },
-  { name: 'Chatbot AI', nameHindi: 'चैटबॉट', path: '/chatbot', icon: MessageSquare },
-  { name: 'Timeline', nameHindi: 'समय रेखा', path: '/timeline', icon: CalendarDays },
-  { name: 'Reminders', nameHindi: 'रिमाइंडर्स', path: '/reminders', icon: BellRing },
-  { name: 'Mandi Prices', nameHindi: 'मंडी भाव', path: '/prices', icon: TrendingUp },
-  { name: 'Govt Schemes', nameHindi: 'सरकारी योजनाएं', path: '/schemes', icon: FileText },
+  { translationKey: 'dashboard', nameHindi: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', path: '/dashboard', icon: LayoutDashboard },
+  { translationKey: 'voiceAssistant', nameHindi: 'ಧ್ವನಿ ಸಹಾಯಕ', path: '/voice', icon: Mic },
+  { translationKey: 'chatbot', nameHindi: 'ಎಐ ಚಾಟ್‌ಬಾಟ್', path: '/chatbot', icon: MessageSquare },
+  { translationKey: 'timeline', nameHindi: 'ಕೃಷಿ ವೇಳಾಪಟ್ಟಿ', path: '/timeline', icon: CalendarDays },
+  { translationKey: 'reminders', nameHindi: 'ಜ್ಞಾಪನೆಗಳು', path: '/reminders', icon: BellRing },
+  { translationKey: 'prices', nameHindi: 'ಮಾರುಕಟ್ಟೆ ಧಾರಣೆ', path: '/prices', icon: TrendingUp },
+  { translationKey: 'schemes', nameHindi: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು', path: '/schemes', icon: FileText },
 ];
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
-  const { activeLang, setActiveLang, isSpeaking, stopSpeaking } = useApp();
+  const { activeLang, setActiveLang, isSpeaking, stopSpeaking, t, farmerProfile } = useApp();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -49,11 +50,16 @@ export const Sidebar: React.FC = () => {
   const getLanguageLabel = (lang: string) => {
     switch (lang) {
       case 'hi-IN': return 'हिन्दी';
-      case 'pa-IN': return 'ਪੰਜਾਬੀ';
+      case 'kn-IN': return 'ಕನ್ನಡ';
       case 'en-IN': return 'English';
       default: return 'English';
     }
   };
+
+  const farmerName = farmerProfile?.name || 'Karan Singh';
+  const farmerVillage = farmerProfile?.village 
+    ? `${farmerProfile.village}, ${farmerProfile.district}` 
+    : 'Khanna, Punjab';
 
   return (
     <>
@@ -61,7 +67,7 @@ export const Sidebar: React.FC = () => {
       <header className="md:hidden flex items-center justify-between bg-emerald-900 text-white px-4 py-3 sticky top-0 z-50 shadow-md">
         <div className="flex items-center gap-2">
           <Sprout className="h-6 w-6 text-emerald-400" />
-          <span className="font-bold text-lg tracking-wider">FARMER OS</span>
+          <span className="font-bold text-lg tracking-wider">RAITHABHANDHU</span>
         </div>
         <div className="flex items-center gap-3">
           {isSpeaking && (
@@ -99,8 +105,8 @@ export const Sidebar: React.FC = () => {
             <Sprout className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-white leading-tight">Farmer OS</h1>
-            <span className="text-xs text-emerald-400/80 font-medium tracking-widest uppercase">कृषि साथी</span>
+            <h1 className="font-bold text-lg text-white leading-tight">Raithabhandhu</h1>
+            <span className="text-xs text-emerald-400/80 font-medium tracking-widest uppercase">{t('tagline')}</span>
           </div>
         </div>
 
@@ -124,8 +130,8 @@ export const Sidebar: React.FC = () => {
               >
                 <Icon className={`h-5 w-5 transition-colors ${isActive ? 'text-white' : 'text-emerald-400 group-hover:text-emerald-300'}`} />
                 <div className="flex flex-col">
-                  <span className="text-sm">{item.name}</span>
-                  <span className="text-[10px] opacity-75 font-normal -mt-0.5">{item.nameHindi}</span>
+                  <span className="text-sm">{t(item.translationKey)}</span>
+                  <span className="text-[9px] opacity-60 font-normal -mt-0.5">{item.nameHindi}</span>
                 </div>
               </Link>
             );
@@ -142,9 +148,9 @@ export const Sidebar: React.FC = () => {
               onChange={handleLangChange}
               className="bg-transparent text-xs text-emerald-100 font-medium focus:outline-none w-full cursor-pointer select-none"
             >
+              <option value="kn-IN" className="bg-emerald-950 text-emerald-100">ಕನ್ನಡ (Kannada)</option>
               <option value="hi-IN" className="bg-emerald-950 text-emerald-100">हिन्दी (Hindi)</option>
-              <option value="pa-IN" className="bg-emerald-950 text-emerald-100">ਪੰਜਾਬੀ (Punjabi)</option>
-              <option value="en-IN" className="bg-emerald-950 text-emerald-100">English (India)</option>
+              <option value="en-IN" className="bg-emerald-950 text-emerald-100">English</option>
             </select>
           </div>
 
@@ -168,11 +174,11 @@ export const Sidebar: React.FC = () => {
           {/* User profile footer */}
           <div className="flex items-center gap-3 px-1 py-1">
             <div className="h-9 w-9 rounded-full bg-emerald-800 flex items-center justify-center font-bold text-emerald-200 border border-emerald-700/50 shadow-inner">
-              K
+              {farmerName[0]}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-white truncate">Karan Singh</span>
-              <span className="text-[10px] text-emerald-400/80 truncate">Khanna, Punjab</span>
+              <span className="text-xs font-semibold text-white truncate">{farmerName}</span>
+              <span className="text-[10px] text-emerald-400/80 truncate">{farmerVillage}</span>
             </div>
           </div>
         </div>

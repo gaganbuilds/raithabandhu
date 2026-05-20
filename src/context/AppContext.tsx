@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Reminder, FarmActivity, CropPrice, Scheme, ChatMessage } from '../types';
 import { mockDb } from '../database/mockDb';
 import { aiService } from '../services/aiService';
+import { translations, Language } from '../data/translations';
 
 interface AppContextProps {
   reminders: Reminder[];
@@ -11,8 +12,8 @@ interface AppContextProps {
   prices: CropPrice[];
   schemes: Scheme[];
   chatHistory: ChatMessage[];
-  activeLang: 'hi-IN' | 'en-IN' | 'pa-IN';
-  setActiveLang: (lang: 'hi-IN' | 'en-IN' | 'pa-IN') => void;
+  activeLang: Language;
+  setActiveLang: (lang: Language) => void;
   speakText: (text: string) => void;
   stopSpeaking: () => void;
   isSpeaking: boolean;
@@ -23,6 +24,10 @@ interface AppContextProps {
   sendChatMessage: (text: string, isVoice?: boolean) => Promise<void>;
   clearChat: () => void;
   isLoadingAI: boolean;
+  t: (key: keyof typeof translations['en-IN']) => string;
+  isRegistered: boolean;
+  farmerProfile: any;
+  registerFarmer: (profile: any) => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -33,9 +38,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [prices, setPrices] = useState<CropPrice[]>([]);
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [activeLang, setActiveLang] = useState<'hi-IN' | 'en-IN' | 'pa-IN'>('hi-IN');
+  const [activeLang, setActiveLang] = useState<Language>('hi-IN');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  
+  // Registration States
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [farmerProfile, setFarmerProfile] = useState<any>(null);
 
   // Sync initial state from mockDb (which operates on localStorage safely in client)
   useEffect(() => {
@@ -44,7 +53,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPrices(mockDb.getCropPrices());
     setSchemes(mockDb.getSchemes());
     setChatHistory(mockDb.getChatHistory());
+    
+    if (typeof window !== 'undefined') {
+      const storedProfile = localStorage.getItem('raithabhandhu_profile');
+      if (storedProfile) {
+        setFarmerProfile(JSON.parse(storedProfile));
+        setIsRegistered(true);
+      }
+      
+      const storedLang = localStorage.getItem('raithabhandhu_lang') as Language;
+      if (storedLang) {
+        setActiveLang(storedLang);
+      }
+    }
   }, []);
+
+  // Translation function
+  const t = (key: keyof typeof translations['en-IN']): string => {
+    const langSet = translations[activeLang] || translations['en-IN'];
+    return (langSet[key] as string) || (translations['en-IN'][key] as string) || String(key);
+  };
+
+  // Language setter with persistence
+  const changeLang = (lang: Language) => {
+    setActiveLang(lang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('raithabhandhu_lang', lang);
+    }
+  };
+
+  // Registration handler
+  const registerFarmer = (profile: any) => {
+    setFarmerProfile(profile);
+    setIsRegistered(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('raithabhandhu_profile', JSON.stringify(profile));
+    }
+  };
 
   // Text to Speech logic
   const speakText = (text: string) => {
@@ -53,7 +98,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Stop any ongoing speech
     window.speechSynthesis.cancel();
 
-    // Clean text from bracketed English translations (to speak Hindi naturally)
+    // Clean text from bracketed English translations (to speak Hindi/Kannada naturally)
     const textToSpeak = text.replace(/\([^)]*\)/g, '').trim();
 
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
@@ -155,7 +200,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         schemes,
         chatHistory,
         activeLang,
-        setActiveLang,
+        setActiveLang: changeLang,
         speakText,
         stopSpeaking,
         isSpeaking,
@@ -165,7 +210,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addActivity,
         sendChatMessage,
         clearChat,
-        isLoadingAI
+        isLoadingAI,
+        t,
+        isRegistered,
+        farmerProfile,
+        registerFarmer
       }}
     >
       {children}
