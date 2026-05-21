@@ -36,6 +36,7 @@ const navItems: NavItem[] = [
   { translationKey: 'reminders', nameHindi: 'ಜ್ಞಾಪನೆಗಳು', path: '/reminders', icon: BellRing },
   { translationKey: 'prices', nameHindi: 'ಮಾರುಕಟ್ಟೆ ಧಾರಣೆ', path: '/prices', icon: TrendingUp },
   { translationKey: 'schemes', nameHindi: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು', path: '/schemes', icon: FileText },
+  { translationKey: 'greenshift', nameHindi: 'ಗ್ರೀನ್‌ಶಿಫ್ಟ್', path: '/greenshift', icon: Sprout },
 ];
 
 export const Sidebar: React.FC = () => {

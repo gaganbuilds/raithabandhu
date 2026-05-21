@@ -16,7 +16,8 @@ import {
   Calendar, 
   ChevronRight, 
   TrendingUp, 
-  AlertTriangle 
+  AlertTriangle,
+  Leaf
 } from 'lucide-react';
 import Link from 'next/link';
 import { 
@@ -25,10 +26,22 @@ import {
   RemindersWidget, 
   FarmActivitiesWidget 
 } from '../../components/DashboardCards';
+import { mockDb } from '../../database/mockDb';
+import { greenshiftTranslations } from '../../data/greenshiftTranslations';
+
 
 export default function DashboardPage() {
-  const { reminders, t, farmerProfile } = useApp();
+  const { reminders, t, farmerProfile, activeLang } = useApp();
   const pendingReminders = reminders.filter(r => !r.completed).length;
+
+  const greenShiftStats = mockDb.getGreenShiftScore();
+  const greenShiftHistory = mockDb.getGreenShiftHistory();
+  const latestGreenShift = greenShiftHistory.length > 0 ? greenShiftHistory[0] : null;
+
+  const gsT = (key: string): string => {
+    const langDict = greenshiftTranslations[activeLang] || greenshiftTranslations['en-IN'];
+    return (langDict as any)[key] || (greenshiftTranslations['en-IN'] as any)[key] || key;
+  };
 
   const [selectedCropTab, setSelectedCropTab] = useState('Crop A');
 
@@ -236,6 +249,76 @@ export default function DashboardPage() {
             <div className="flex gap-2.5 items-start text-xs text-amber-800 border border-amber-200/50 bg-amber-50/50 p-2.5 rounded-xl font-semibold">
               <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
               <span>{currentCrop.waterAlert}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* GreenShift Engine Summary Card */}
+      <div className="bg-white border border-emerald-800/10 p-6 rounded-2xl shadow-sm space-y-5">
+        <div className="flex justify-between items-center border-b border-emerald-800/5 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600">
+              <Sprout className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-emerald-950 text-sm">{gsT('title')} Status</h3>
+              <p className="text-[10px] text-emerald-800/50 font-semibold mt-0.5">Monitoring chemical-to-organic transition & carbon credits</p>
+            </div>
+          </div>
+          <Link 
+            href="/greenshift" 
+            className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer active:scale-95"
+          >
+            <span>Open Engine</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Sustainability Score */}
+          <div className="bg-emerald-50/10 border border-emerald-800/5 p-4 rounded-xl flex items-center gap-3">
+            <div className="relative h-12 w-12 flex items-center justify-center shrink-0">
+              <svg className="w-12 h-12 transform -rotate-90">
+                <circle cx="24" cy="24" r="20" stroke="#f4f4f5" strokeWidth="4" fill="transparent" />
+                <circle cx="24" cy="24" r="20" stroke="#059669" strokeWidth="4" fill="transparent" 
+                  strokeDasharray={String(2 * Math.PI * 20)}
+                  strokeDashoffset={String(2 * Math.PI * 20 * (1 - greenShiftStats.sustainabilityScore / 100))} 
+                />
+              </svg>
+              <span className="absolute text-xs font-black text-emerald-950">{greenShiftStats.sustainabilityScore}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">{gsT('overallScore')}</span>
+              <span className="text-[10px] font-semibold text-emerald-800/70 mt-0.5 block">
+                {greenShiftStats.sustainabilityScore >= 70 ? 'Excellent Ecosystem' : 'Improving soil biology'}
+              </span>
+            </div>
+          </div>
+
+          {/* Carbon Offset */}
+          <div className="bg-emerald-50/10 border border-emerald-800/5 p-4 rounded-xl flex items-center gap-3">
+            <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+              <Leaf className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">{gsT('carbonOffset')}</span>
+              <span className="text-sm font-black text-emerald-950 block mt-0.5">{greenShiftStats.carbonOffset} kg CO₂e</span>
+            </div>
+          </div>
+
+          {/* Active Transition Roadmap */}
+          <div className="bg-emerald-50/10 border border-emerald-800/5 p-4 rounded-xl flex items-center gap-3">
+            <div className="h-10 w-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">{gsT('activeRoadmap')}</span>
+              <span className="text-[11px] font-bold text-emerald-950 block mt-0.5 truncate max-w-[180px]">
+                {latestGreenShift 
+                  ? `${latestGreenShift.productName} (Season 1)` 
+                  : 'No Active Transition Plan'}
+              </span>
             </div>
           </div>
         </div>
